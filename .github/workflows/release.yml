@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build addon zip
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          ZIP="telneUI-${TAG}.zip"
+
+          # Copy only the WoW-relevant files into a staging folder
+          mkdir -p staging/telneUI
+          rsync -av \
+            --exclude='.git' \
+            --exclude='.claude' \
+            --exclude='.github' \
+            --exclude='.gitignore' \
+            --exclude='.luacheckrc' \
+            --exclude='README.md' \
+            --exclude='CHANGELOG.md' \
+            --exclude='spec.md' \
+            --exclude='progress.md' \
+            --exclude='docs' \
+            --exclude='*.zip' \
+            --exclude='release' \
+            . staging/telneUI/
+
+          cd staging
+          zip -r "../release/${ZIP}" telneUI/
+          echo "ZIP=${ZIP}" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/${{ env.ZIP }}
+          body_path: CHANGELOG.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,28 @@
+## Interface: 110100
+## Title: telneUI
+## Notes: Personal UI profile manager — snapshot and clone your UI across characters
+## Author: telne
+## Version: 1.0.0
+## SavedVariables: telneUISavedVars
+## DefaultState: enabled
+
+# Core
+Core.lua
+ProfileManager.lua
+Snapshot.lua
+Importer.lua
+
+# UI
+UI/Widgets.lua
+UI/MainFrame.lua
+UI/ProfilesTab.lua
+UI/AddonsTab.lua
+UI/SettingsTab.lua
+
+# Modules
+Modules/Macros.lua
+Modules/Keybinds.lua
+Modules/Chat.lua
+Modules/Frames.lua
+Modules/EditMode.lua
+Modules/AddonSettings.lua
