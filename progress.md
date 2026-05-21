@@ -31,8 +31,8 @@ All scaffold files created. Addon is ready for in-game testing.
 ## Milestone Completion Log
 
 ### ✅ Milestone 1 — Folder Structure, Scaffold & Dark UI Shell
-**Date:** 2025-05-21
-**Status:** Complete — all files written, pending in-game test
+**Date:** 2026-05-21
+**Status:** Complete — interface version fixed for WoW Midnight (120005)
 
 **Files created:**
 | File | Status |
