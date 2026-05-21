@@ -6,25 +6,28 @@ _Updated each session. Read this at the start of every new conversation to know 
 
 ## Current Status
 
-**Milestone 1 — COMPLETE** (2025-05-21)
+**Milestone 2 — COMPLETE** (2026-05-21)
 
-All scaffold files created. Addon is ready for in-game testing.
+Profile CRUD fully implemented. ProfilesTab is functional with list, selection, create, delete.
 
 ---
 
-## Next Session: Start Milestone 2
+## Next Session: Start Milestone 3
 
 **Prompt to use:**
-> "telneUI — starting Milestone 2"
+> "telneUI — starting Milestone 3"
 
-**What Milestone 2 builds:**
-- ProfileManager.lua: CreateProfile, DeleteProfile, ListProfiles, SetActiveProfile, GetActiveProfile
-- UI/ProfilesTab.lua: scrollable profile list with row selection, [+ New] input dialog, [Delete] confirm dialog, metadata display in right panel
-- Footer updates when active profile changes
+**What Milestone 3 builds:**
+- `Modules/Macros.lua`: `Snapshot(profile)` reads all general macros (GetMacroInfo 1–120) and character macros (121–138); `Import(profile)` deletes+recreates with CreateMacro
+- `Snapshot.lua`: replace stub with `addon:TakeSnapshot(name)` that calls each module's Snapshot function then sets `profile.snapshotAt`
+- `Importer.lua`: replace stub with `addon:ImportProfile(name)` that calls each module's Import; wire progress bar
+- `UI/ProfilesTab.lua`: connect [Snapshot All] and [Import All] buttons (remove M3 stub notifications), wire progress bar updates
 
 **Files to modify:**
-- `ProfileManager.lua` (replace stubs with full implementation)
-- `UI/ProfilesTab.lua` (replace skeleton with functional list)
+- `Modules/Macros.lua`
+- `Snapshot.lua`
+- `Importer.lua`
+- `UI/ProfilesTab.lua` (buttons + progress bar)
 
 ---
 
@@ -72,8 +75,23 @@ All scaffold files created. Addon is ready for in-game testing.
 
 ---
 
-### 🔲 Milestone 2 — Profile Manager
-Full profile CRUD. Profiles persist account-wide.
+### ✅ Milestone 2 — Profile Manager
+**Date:** 2026-05-21
+**Status:** Complete
+
+**Files modified:**
+| File | Status |
+|------|--------|
+| `ProfileManager.lua` | ✅ CreateProfile, DeleteProfile, ListProfiles, SetActiveProfile, GetActiveProfile, GetProfile |
+| `UI/ProfilesTab.lua` | ✅ Scrollable list, row pool reuse, [+ New] dialog, [Delete] confirm, right-panel metadata, SetBtnState, footer sync |
+
+**In-game test checklist:**
+- [ ] Create 3 profiles — appear in list newest-first
+- [ ] Click profile row — highlights blue, footer updates
+- [ ] `/reload` — active profile persists
+- [ ] Relog on alt — profile list still present (account-wide SavedVariables)
+- [ ] Delete profile — confirm dialog appears, profile removed, right panel resets
+- [ ] Duplicate name check — notification fires, no second profile created
 
 ### 🔲 Milestone 3 — Macro Snapshot & Import
 General + character macros, overwrite on re-import, limit warnings.

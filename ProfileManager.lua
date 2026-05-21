@@ -1,27 +1,53 @@
--- ProfileManager.lua: profile CRUD — implemented in Milestone 2
+-- ProfileManager.lua: profile CRUD — Milestone 2
 
 local addon = telneUI
 
--- Creates a new empty profile under the given name.
--- Populated with full data by Snapshot.lua.
+-- Creates a new empty profile skeleton under the given name.
+-- Snapshot.lua fills it with real data later.
 function addon:CreateProfile(name)
-    -- M2
+    if not addon.db then return end
+    addon.db.profiles = addon.db.profiles or {}
+    addon.db.profiles[name] = {
+        createdBy     = addon:GetCharacterKey(),
+        createdAt     = addon:GetTimestamp(),
+        addons        = {},
+        macros        = { general = {}, character = {} },
+        keybinds      = {},
+        chat          = { windows = {} },
+        frames        = {},
+        editMode      = {},
+        addonSettings = {},
+    }
 end
 
--- Deletes the named profile. No-op if it doesn't exist.
+-- Permanently removes the named profile.
+-- Also clears activeProfile if it pointed to the deleted profile.
 function addon:DeleteProfile(name)
-    -- M2
+    if not addon.db or not addon.db.profiles then return end
+    addon.db.profiles[name] = nil
+    if addon.db.activeProfile == name then
+        addon.db.activeProfile = nil
+    end
 end
 
--- Returns an ordered list of profile names (newest first).
+-- Returns an ordered list of profile names, newest-first (by createdAt string).
+-- createdAt uses "YYYY-MM-DD HH:MM" format so lexicographic sort = chronological.
 function addon:ListProfiles()
-    -- M2
-    return {}
+    if not addon.db or not addon.db.profiles then return {} end
+    local list = {}
+    for name, p in pairs(addon.db.profiles) do
+        list[#list + 1] = { name = name, time = p.createdAt or "" }
+    end
+    table.sort(list, function(a, b) return a.time > b.time end)
+    local names = {}
+    for _, v in ipairs(list) do
+        names[#names + 1] = v.name
+    end
+    return names
 end
 
--- Sets the active profile by name (stored in db.activeProfile).
+-- Sets the active profile (persisted in SavedVariables).
 function addon:SetActiveProfile(name)
-    -- M2
     if addon.db then
         addon.db.activeProfile = name
     end
@@ -32,8 +58,7 @@ function addon:GetActiveProfile()
     return addon.db and addon.db.activeProfile
 end
 
--- Returns the profile table for the given name, or nil.
+-- Returns the full profile table for the given name, or nil.
 function addon:GetProfile(name)
-    -- M2
     return addon.db and addon.db.profiles and addon.db.profiles[name]
 end
