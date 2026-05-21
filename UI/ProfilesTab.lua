@@ -105,11 +105,11 @@ function addon:BuildProfilesTab(parent)
         return b
     end
 
-    parent.snapshotBtn = ActionBtn("🔷 Snapshot All")
-    parent.importBtn   = ActionBtn("🟢 Import All")
-    parent.exportBtn   = ActionBtn("📤 Export")
-    parent.importStrBtn= ActionBtn("📥 Import String")
-    parent.deleteBtn   = ActionBtn("🗑 Delete")
+    parent.snapshotBtn = ActionBtn("Snapshot All")
+    parent.importBtn   = ActionBtn("Import All")
+    parent.exportBtn   = ActionBtn("Export")
+    parent.importStrBtn= ActionBtn("Import String")
+    parent.deleteBtn   = ActionBtn("Delete")
 
     -- Progress bar
     local pbFrame, pbCtrl = addon:CreateProgressBar(rightPanel, 200)

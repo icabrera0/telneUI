@@ -307,13 +307,13 @@ end
 -- type: "success" | "error" | "warning"
 function addon:ShowNotification(message, notifType)
     local c = C.success
-    local icon = "✓"
+    local icon = "[OK]"
     if notifType == "error" then
         c = C.error
-        icon = "✕"
+        icon = "[ERR]"
     elseif notifType == "warning" then
         c = C.warning
-        icon = "⚠"
+        icon = "[!]"
     end
 
     local f = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
