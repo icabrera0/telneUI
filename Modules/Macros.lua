@@ -1,6 +1,9 @@
 -- Modules/Macros.lua: macro snapshot and import
 -- Only character-specific macros (slots GEN_MAX+1..GEN_MAX+CHAR_MAX) are managed.
 -- General macros (slots 1..GEN_MAX) are account-wide and left untouched.
+--
+-- WoW Midnight combines general + character macros into a single GEN_MAX (120) cap.
+-- Character macro creation fails whenever numGlobal >= GEN_MAX.
 
 local addon = telneUI
 addon.Macros = addon.Macros or {}
@@ -21,22 +24,42 @@ end
 
 function addon.Macros:Import(profile)
     if not profile.macros then return end
+    local charStored = profile.macros.character or {}
+    if #charStored == 0 then return end
 
-    -- Delete existing character macros (reverse so index shifts don't matter)
-    for i = GEN_MAX + CHAR_MAX, GEN_MAX + 1, -1 do
+    local numGlobal, numChar = GetNumMacros()
+
+    -- Combined cap: cannot create any macro (even character) when general pool is full.
+    -- Abort BEFORE deleting anything so the user keeps their existing macros.
+    if numGlobal >= GEN_MAX then
+        addon:ShowNotification(
+            "Macro import skipped: general macros full (" .. numGlobal .. "/" .. GEN_MAX ..
+            "). Free up a general macro slot first.", "warning")
+        return
+    end
+
+    -- Delete current character macros now that we know creation will succeed.
+    for i = GEN_MAX + numChar, GEN_MAX + 1, -1 do
         local name = GetMacroInfo(i)
         if name and name ~= "" then DeleteMacro(i) end
     end
 
-    local charStored = profile.macros.character or {}
-    local count = 0
+    -- Recreate; use pcall so a surprise failure never leaves a silent partial state.
+    local created = 0
     for _, m in ipairs(charStored) do
-        if count >= CHAR_MAX then
+        if created >= CHAR_MAX then break end
+        local ok = pcall(CreateMacro, m.name, m.icon, m.body, 1)
+        if not ok then
             addon:ShowNotification(
-                "Macro limit: " .. (#charStored - count) .. " character macro(s) skipped.", "warning")
+                "Macro import stopped at " .. created .. "/" .. #charStored ..
+                " (slot limit reached).", "warning")
             break
         end
-        CreateMacro(m.name, m.icon, m.body, 1)
-        count = count + 1
+        created = created + 1
+    end
+
+    local skipped = #charStored - created
+    if skipped > 0 and created == CHAR_MAX then
+        addon:ShowNotification(skipped .. " macro(s) skipped (character macro limit).", "warning")
     end
 end
