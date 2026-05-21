@@ -281,12 +281,52 @@ function addon:BuildProfilesTab(parent)
         )
     end)
 
-    -- Snapshot / Import stubs — wired in M3+
+    -- Snapshot
     tab.snapshotBtn:SetScript("OnClick", function()
-        addon:ShowNotification("Snapshot available in Milestone 3.", "warning")
+        local active = addon:GetActiveProfile()
+        if not active then return end
+        tab.statusText:SetText("Snapshotting...")
+        tab.progressBar:SetProgress(0)
+        tab.progressBar:SetText("0%")
+        addon:SnapshotAll(active, function(pct)
+            tab.progressBar:SetProgress(pct)
+            tab.progressBar:SetText(math.floor(pct * 100) .. "%")
+            if pct >= 1.0 then
+                tab.statusText:SetText("Snapshot complete")
+                tab.progressBar:SetText("Done")
+                PopulateRightPanel(tab, active)
+                addon:ShowNotification("Snapshot saved.", "success")
+            end
+        end)
     end)
+
+    -- Import
     tab.importBtn:SetScript("OnClick", function()
-        addon:ShowNotification("Import available in Milestone 3.", "warning")
+        local active = addon:GetActiveProfile()
+        if not active then return end
+        local p = addon:GetProfile(active)
+        if not p or not p.snapshotAt then
+            addon:ShowNotification("No snapshot to import. Take a snapshot first.", "warning")
+            return
+        end
+        addon:ShowConfirmDialog(
+            "Import Profile",
+            "Import \"" .. active .. "\" onto this character?\nThis will replace your current macros.",
+            function()
+                tab.statusText:SetText("Importing...")
+                tab.progressBar:SetProgress(0)
+                tab.progressBar:SetText("0%")
+                addon:ImportAll(active, function(pct)
+                    tab.progressBar:SetProgress(pct)
+                    tab.progressBar:SetText(math.floor(pct * 100) .. "%")
+                    if pct >= 1.0 then
+                        tab.statusText:SetText("Import complete")
+                        tab.progressBar:SetText("Done")
+                        addon:ShowNotification("Profile imported.", "success")
+                    end
+                end)
+            end
+        )
     end)
 
     -- Progress bar

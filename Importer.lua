@@ -1,12 +1,20 @@
--- Importer.lua: applies a stored profile to the current character
--- Always auto-backs up current state before importing (Milestone 8).
+-- Importer.lua: applies a stored profile to the current character.
+-- Each milestone adds a step. callback(0..1) reports progress to the UI.
 
 local addon = telneUI
 
--- Imports profile[name] onto the current character.
--- callback(progress 0–1) is called as each module completes.
+-- Steps execute in order. Mirror the order in Snapshot.lua.
+local STEPS = {
+    { fn = function(p) addon.Macros:Import(p)   end },  -- M3
+    -- M4: { fn = function(p) addon.Keybinds:Import(p) end },
+    -- M5: { fn = function(p) addon.Frames:Import(p)   end },
+    -- M6: { fn = function(p) addon.Chat:Import(p)     end },
+    -- M6: { fn = function(p) addon.EditMode:Import(p) end },
+    -- M7: { fn = function(p) addon.AddonSettings:ImportStates(p)     end },
+    -- M7: { fn = function(p) addon.AddonSettings:RestoreAddonVars(p) end },
+}
+
 function addon:ImportAll(name, callback)
-    -- M3+: each module will be wired here
     if not addon.db or not addon.db.profiles then return end
     local p = addon.db.profiles[name]
     if not p then
@@ -14,5 +22,9 @@ function addon:ImportAll(name, callback)
         return
     end
 
-    if callback then callback(1.0) end
+    local total = #STEPS
+    for i, step in ipairs(STEPS) do
+        step.fn(p)
+        if callback then callback(i / total) end
+    end
 end

@@ -6,28 +6,33 @@ _Updated each session. Read this at the start of every new conversation to know 
 
 ## Current Status
 
-**Milestone 2 — COMPLETE** (2026-05-21)
+**Milestone 3 — COMPLETE** (2026-05-21)
 
-Profile CRUD fully implemented. ProfilesTab is functional with list, selection, create, delete.
+Macro snapshot and import fully implemented. [Snapshot All] and [Import All] buttons live.
 
 ---
 
-## Next Session: Start Milestone 3
+## Next Session: Start Milestone 4
 
 **Prompt to use:**
-> "telneUI — starting Milestone 3"
+> "telneUI — starting Milestone 4"
 
-**What Milestone 3 builds:**
-- `Modules/Macros.lua`: `Snapshot(profile)` reads all general macros (GetMacroInfo 1–120) and character macros (121–138); `Import(profile)` deletes+recreates with CreateMacro
-- `Snapshot.lua`: replace stub with `addon:TakeSnapshot(name)` that calls each module's Snapshot function then sets `profile.snapshotAt`
-- `Importer.lua`: replace stub with `addon:ImportProfile(name)` that calls each module's Import; wire progress bar
-- `UI/ProfilesTab.lua`: connect [Snapshot All] and [Import All] buttons (remove M3 stub notifications), wire progress bar updates
+**What Milestone 4 builds:**
+- `Modules/Keybinds.lua`: `Snapshot(profile)` uses `GetBindingKey(action)` / iterates all bindings with `GetBinding(i)` (returns action, key1, key2); `Import(profile)` calls `SetBinding(key, action)` then `SaveBindings(2)` (2 = character-specific)
+- `Snapshot.lua`: add Keybinds step to STEPS array (uncomment M4 line)
+- `Importer.lua`: add Keybinds step to STEPS array (uncomment M4 line)
+
+**Key WoW API:**
+- `GetNumBindings()` → total number of binding slots
+- `GetBinding(index)` → action, key1, key2
+- `SetBinding(key, action)` → sets one binding; pass nil action to clear
+- `SaveBindings(2)` → saves character-specific bindings (must call after all SetBinding calls)
+- `GetCurrentBindingSet()` → 1=account, 2=character
 
 **Files to modify:**
-- `Modules/Macros.lua`
-- `Snapshot.lua`
-- `Importer.lua`
-- `UI/ProfilesTab.lua` (buttons + progress bar)
+- `Modules/Keybinds.lua`
+- `Snapshot.lua` (uncomment M4 step)
+- `Importer.lua` (uncomment M4 step)
 
 ---
 
@@ -85,13 +90,23 @@ Profile CRUD fully implemented. ProfilesTab is functional with list, selection, 
 | `ProfileManager.lua` | ✅ CreateProfile, DeleteProfile, ListProfiles, SetActiveProfile, GetActiveProfile, GetProfile |
 | `UI/ProfilesTab.lua` | ✅ Scrollable list, row pool reuse, [+ New] dialog, [Delete] confirm, right-panel metadata, SetBtnState, footer sync |
 
+### ✅ Milestone 3 — Macro Snapshot & Import
+**Date:** 2026-05-21
+**Status:** Complete
+
+**Files modified:**
+| File | Status |
+|------|--------|
+| `Modules/Macros.lua` | ✅ Snapshot (slots 1-120 general, 121-138 character), Import (delete+recreate), limit warnings |
+| `Snapshot.lua` | ✅ SnapshotAll with extensible STEPS array, sets snapshotAt/snapshotBy |
+| `Importer.lua` | ✅ ImportAll with extensible STEPS array |
+| `UI/ProfilesTab.lua` | ✅ [Snapshot All] and [Import All] wired with progress bar, empty-snapshot guard on import |
+
 **In-game test checklist:**
-- [ ] Create 3 profiles — appear in list newest-first
-- [ ] Click profile row — highlights blue, footer updates
-- [ ] `/reload` — active profile persists
-- [ ] Relog on alt — profile list still present (account-wide SavedVariables)
-- [ ] Delete profile — confirm dialog appears, profile removed, right panel resets
-- [ ] Duplicate name check — notification fires, no second profile created
+- [ ] Create a profile, take snapshot — snapshotAt updates in right panel
+- [ ] Import to another character — macros match source
+- [ ] Import with >120 general or >18 character macros — warning notification
+- [ ] Import on profile with no snapshot — "No snapshot to import" warning
 
 ### 🔲 Milestone 3 — Macro Snapshot & Import
 General + character macros, overwrite on re-import, limit warnings.
